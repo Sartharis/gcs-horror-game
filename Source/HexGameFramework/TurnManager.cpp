@@ -33,8 +33,8 @@ void UTurnManager::UnregisterTurnComponent( UTurnComponent* TurnComponent )
 {
 	if( TurnComponentsRegistered.Find( TurnComponent ) != INDEX_NONE )
 	{
-		TurnComponentsRegistered.Remove( TurnComponent );
 		FinishMove( TurnComponent );
+		TurnComponentsRegistered.Remove( TurnComponent );
 	}
 	else
 	{
@@ -113,6 +113,20 @@ bool UTurnComponent::IsInTurn()
 	return Active;
 }
 
+void UTurnComponent::RemoveFromTurnManager()
+{
+	UTurnManager* TurnManager = UHexFunctionLibrary::GetHexGameMode( this )->GetTurnManager();
+	check( TurnManager != nullptr );
+	TurnManager->UnregisterTurnComponent( this );
+}
+
+void UTurnComponent::AddToTurnManager( bool InsertIntoTurn)
+{
+	UTurnManager* TurnManager = UHexFunctionLibrary::GetHexGameMode( this )->GetTurnManager();
+	check( TurnManager != nullptr );
+	TurnManager->RegisterTurnComponent( this, InsertIntoTurn );
+}
+
 void UTurnComponent::StartTurn()
 {
 	Active = true;
@@ -132,7 +146,5 @@ void UTurnComponent::EndTurn()
 void UTurnComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	UTurnManager* TurnManager = UHexFunctionLibrary::GetHexGameMode( this )->GetTurnManager();
-	check( TurnManager != nullptr );
-	TurnManager->RegisterTurnComponent( this, true );
+	AddToTurnManager( true );
 }

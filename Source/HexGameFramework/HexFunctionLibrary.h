@@ -35,15 +35,15 @@ class HEXGAMEFRAMEWORK_API UHexFunctionLibrary : public UBlueprintFunctionLibrar
 	static FHexVector Multiply_HexVectorFloat( FHexVector A, float B );
 
 	/* Returns the length of the FHexVector */
-	UFUNCTION( BlueprintPure, meta = ( DisplayName = "HexVectorLength", Keywords = "magnitude" ), Category = "Hex Coordinates" )
+	UFUNCTION( BlueprintPure, meta = ( DisplayName = "Hex Vector Length", Keywords = "magnitude" ), Category = "Hex Coordinates" )
 	static int HSize( FHexVector A );
 
 	/* Returns the distance between two FHexVectors */
-	UFUNCTION( BlueprintPure, meta = ( DisplayName = "HexVectorDistance", Keywords = "distance" ), Category = "Hex Coordinates" )
+	UFUNCTION( BlueprintPure, meta = ( DisplayName = "Hex Vector Distance", Keywords = "distance" ), Category = "Hex Coordinates" )
 	static int HDist( FHexVector A, FHexVector B);
 
 	/* Returns the distance between two FHexVectors */
-	UFUNCTION( BlueprintPure, meta = ( DisplayName = "MakeHexVectorAxial", Keywords = "make" ), Category = "Hex Coordinates" )
+	UFUNCTION( BlueprintPure, meta = ( DisplayName = "Make Hex Vector Axial", Keywords = "make" ), Category = "Hex Coordinates" )
 	static FHexVector MakeHexVectorAxial( int32 X, int32 Y );
 
 	static AHexGameFrameworkGameModeBase* GetHexGameMode( const UObject* WorldContextObject );

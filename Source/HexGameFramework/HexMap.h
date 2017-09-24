@@ -129,6 +129,8 @@ public:
 	UFUNCTION( BlueprintCallable, Category = "Hex Data" )
 	bool UnregisterActorFromHex( const FHexVector& Hex, AActor* Actor );
 
+
+
 	// MESH INSTANCING---------------------------------------------------------------------------------------
 	/**Checks if the given static mesh has a corresponding instanced mesh component*/
 	UFUNCTION( BlueprintCallable, Category="Instanced Meshes")
