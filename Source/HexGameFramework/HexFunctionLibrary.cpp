@@ -28,6 +28,71 @@ FHexVector UHexFunctionLibrary::HexRound( float Q, float R, float S )
 	return FHexVector( QRound, RRound, SRound );
 }
 
+TArray<FHexVector> UHexFunctionLibrary::HexLine( FHexVector A, FHexVector B )
+{
+	int Dist = HDist( A, B );
+	TArray< FHexVector > Results;
+	// We want to sample n+1 points
+	for( int i = 0; i <= Dist; i++ )
+	{
+		float LerpVal = ( float(i) / float(Dist) );
+		Results.Add( HexRound( FMath::Lerp( A.Q, B.Q, LerpVal )
+							   , FMath::Lerp( A.R, B.R, LerpVal )
+							   , FMath::Lerp( A.S, B.S, LerpVal ) ) );
+	}
+	return Results;
+}
+
+TArray<FHexVector> UHexFunctionLibrary::HexRing( FHexVector Center, int Radius )
+{
+	TArray< FHexVector > Results;
+	if( Radius > 0 )
+	{
+		FHexVector CurrentHex = Center + ( FHexVector::GetHexDirection( 4 ) * Radius );
+		for( int i = 0; i < 6; i++ )
+		{
+			for( int j = 0; j < Radius; j++ )
+			{
+				Results.Add( CurrentHex );
+				CurrentHex = FHexVector::GetNeighborCoords( CurrentHex, i );
+			}
+		}
+	}
+	else
+	{
+		Results.Add( Center );
+	}
+	return Results;
+}
+
+UAbstractHexTile* UHexFunctionLibrary::GetTileTypeObject( AHexMap* HexMap, FHexVector Tile )
+{
+	if( HexMap && HexMap->GetDataAtHex( Tile ))
+	{
+		UAbstractHexTile* TileObj = Cast<UAbstractHexTile>( HexMap->GetDataAtHex( Tile )->HexTileType->GetDefaultObject() );
+		return TileObj;
+	}
+	else
+	{
+		return NULL;
+	}
+}
+
+TArray<FHexVector> UHexFunctionLibrary::HexInRadius( FHexVector Center, int Radius )
+{
+	TArray< FHexVector > Results;
+	Results.Add( Center );
+	if( Radius > 0 )
+	{
+		for ( int i = 1; i <= Radius; i++ )
+		{
+			TArray< FHexVector > HexToAdd = HexRing( Center, i );
+			Results.Append( HexToAdd );
+		}
+	}
+	return Results;
+}
+
 bool UHexFunctionLibrary::Equal_HexVectorHexVector( FHexVector A, FHexVector B )
 {
 	return A == B;

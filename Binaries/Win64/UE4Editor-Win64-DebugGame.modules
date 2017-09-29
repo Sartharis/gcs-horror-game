@@ -1,7 +1,7 @@
 {
-	"Changelist" : 3450819,
-	"CompatibleChangelist" : 3299760,
-	"BuildId" : "1ddcddb2-7ec6-4aa9-8a33-fc32d2a526e5",
+	"Changelist" : 3586342,
+	"CompatibleChangelist" : 3573198,
+	"BuildId" : "a85275cd-d363-4594-bbcc-177600e839e0",
 	"Modules" : 
 	{
 		"HexGameFramework" : "UE4Editor-HexGameFramework-Win64-DebugGame.dll"

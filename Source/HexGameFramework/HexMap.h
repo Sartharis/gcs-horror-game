@@ -5,10 +5,12 @@
 #include "GameFramework/Actor.h"
 #include "HexTile.h"
 #include "Hex.h"
+#include "HexLightComponent.h"
 #include "HexMap.generated.h"
 
-//ORIENTATION-------------------------------------------------------------------------
 
+
+//ORIENTATION-------------------------------------------------------------------------
 UENUM( BlueprintType )
 namespace EHexOrientation
 {
@@ -62,6 +64,8 @@ class UHexTileData : public UObject
 	TSet<AActor*> ActorsOnTile;
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FLightUpdate, bool, isLit );
+
 // HEX MAP-------------------------------------------------------------------------
 /** The class that stores all data about the hex map. ONLY 1 SHOULD EXIST IN A WORLD AT A TIME!*/
 UCLASS()
@@ -73,6 +77,7 @@ public:
 	AHexMap();
 
 protected:
+
 	/** Determines whether the hexes are pointy or flat at the top */
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Map Settings" )
 	TEnumAsByte<EHexOrientation::Type> HexOrientation;
@@ -85,18 +90,29 @@ protected:
 	UPROPERTY( EditAnywhere, BlueprintReadOnly, Category = "Map Settings" )
 	int32 SizeY;
 
-	/**  A map mapping all added hexes to a HexTileData struct. If a coordinate is not in the map, there is no hex at that location*/
+	/**  A map mapping all added hexes to a HexTileData struct. If a coordinate is not in the map, 
+	there is no hex at that location */
 	UPROPERTY( Instanced )
 	TMap<FHexVector, UHexTileData* > HexMap;
 
-	/** A map mapping a static mesh to an instanced mesh component. Used to quickly assign meshes to instanced mesh components*/
+	/** A map mapping a static mesh to an instanced mesh component. Used to quickly assign meshes 
+	to instanced mesh components */
 	UPROPERTY( Instanced )
 	TMap<UStaticMesh*, UInstancedStaticMeshComponent* > InstancedMeshComponentMap;
+
+	/** A set containing all currently active hex tile lights on the map*/
+	UPROPERTY()
+	TSet<UHexLightComponent*> ActiveLights;
+
+	/** Set containing the vectors of all tiles currently lit up by light sources*/
+	UPROPERTY()
+	TSet<FHexVector> LitTiles;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -129,8 +145,6 @@ public:
 	UFUNCTION( BlueprintCallable, Category = "Hex Data" )
 	bool UnregisterActorFromHex( const FHexVector& Hex, AActor* Actor );
 
-
-
 	// MESH INSTANCING---------------------------------------------------------------------------------------
 	/**Checks if the given static mesh has a corresponding instanced mesh component*/
 	UFUNCTION( BlueprintCallable, Category="Instanced Meshes")
@@ -145,4 +159,21 @@ public:
 	   If there is no path, an empty array is returned*/
 	UFUNCTION( BlueprintPure, meta = ( Keywords = "pathfinding navigation" ), Category = "Pathfinding" )
 	TArray<FHexVector> GetPathBetweenHexes( FHexVector A, FHexVector B );
+
+	//LIGHTS--------------------------------------------------------------------------------------------------
+	/** Sends a broadcast when the component starts its turn*/
+	UPROPERTY( BlueprintAssignable, Category = "Light" )
+	FLightUpdate LightUpdate;
+
+	void RecalculateLights();
+
+	UFUNCTION( BlueprintImplementableEvent, Category = "Light" )
+	void NotifyTileActorsOfLightChange();
+
+	UFUNCTION( BlueprintPure, Category = "Light" )
+	bool IsTileLitUp( FHexVector HexLocation );
+
+	void AddLightSource( UHexLightComponent* LightSource);
+
+	void RemoveLightSource( UHexLightComponent* LightSource );
 };

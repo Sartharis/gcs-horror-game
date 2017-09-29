@@ -17,9 +17,26 @@ class HEXGAMEFRAMEWORK_API UHexFunctionLibrary : public UBlueprintFunctionLibrar
 	/** Round the given fractional cube hex coordinates to the nearest hex */
 	UFUNCTION( BlueprintPure, Category="Hex Coordinates")
 	static FHexVector HexRound( float Q, float R, float S );
-	
+
+	/** Returns an array consisting of all hexes from A and B (in a straight line)*/
+	UFUNCTION( BlueprintPure, Category = "Hex Coordinates" )
+	static TArray<FHexVector> HexLine( FHexVector A, FHexVector B );
+
+	/** Returns an array consisting of all hexes in a ring of some radius around some center hex */
+	UFUNCTION( BlueprintPure, Category = "Hex Coordinates" )
+	static TArray<FHexVector> HexRing( FHexVector Center, int Radius );
+
+	/** Return the default data object of the type of hex tile at the given position.
+		Can be NULL, remember to check if the object is valid!*/
+	//UFUNCTION( BlueprintPure, Category = "Hex Coordinates" )
+	static UAbstractHexTile* GetTileTypeObject( AHexMap* HexMap, FHexVector Tile );
+
+	/** Returns an array consisting of all hexes in a radius from the center*/
+	UFUNCTION( BlueprintPure, Category = "Hex Coordinates" )
+	static TArray<FHexVector> HexInRadius( FHexVector Center, int Radius );
+
 	/* Hex Vector equality */
-	UFUNCTION( BlueprintPure, meta = ( DisplayName = "hexvector == hexvector", CompactNodeTitle = "==", Keywords = "= equal same", CommutativeAssociativeBinaryOperator = "true" ), Category = "Hex Coordinates" )
+	UFUNCTION( BlueprintPure, meta = ( DisplayName = "hexvector == hexvector", CompactNodeTitle = "==", Keywords = "= equal same" ), Category = "Hex Coordinates" )
 	static bool Equal_HexVectorHexVector( FHexVector A, FHexVector B );
 
 	/* Hex Vector addition */

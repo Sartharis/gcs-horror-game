@@ -105,7 +105,7 @@ void UTurnManager::StartNextRound()
 UTurnComponent::UTurnComponent()
 	: Active( false )
 {
-
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 bool UTurnComponent::IsInTurn()
