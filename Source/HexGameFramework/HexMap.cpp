@@ -314,13 +314,16 @@ void AHexMap::RecalculateLights()
 		{
 			bool WallHit = false;
 			TArray<FHexVector> TilesToCheck = UHexFunctionLibrary::HexLine( LightSourcePos, TileLight );
-			for( FHexVector& TileCheck : TilesToCheck )
+			if( TilesToCheck.Num() > 0 )
 			{
-				UAbstractHexTile* TileData = UHexFunctionLibrary::GetTileTypeObject( this, TileCheck );
-				if( !TileData || TileData->IsWall )
+				for( FHexVector& TileCheck : TilesToCheck )
 				{
-					WallHit = true;
-					break;
+					UAbstractHexTile* TileData = UHexFunctionLibrary::GetTileTypeObject( this, TileCheck );
+					if( !TileData || TileData->IsWall )
+					{
+						WallHit = true;
+						break;
+					}
 				}
 			}
 			if( !WallHit )

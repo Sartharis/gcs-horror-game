@@ -32,6 +32,11 @@ TArray<FHexVector> UHexFunctionLibrary::HexLine( FHexVector A, FHexVector B )
 {
 	int Dist = HDist( A, B );
 	TArray< FHexVector > Results;
+	if( A == B )
+	{
+		Results.Add( A );
+		return Results;
+	}
 	// We want to sample n+1 points
 	for( int i = 0; i <= Dist; i++ )
 	{
@@ -87,7 +92,7 @@ TArray<FHexVector> UHexFunctionLibrary::HexInRadius( FHexVector Center, int Radi
 		for ( int i = 1; i <= Radius; i++ )
 		{
 			TArray< FHexVector > HexToAdd = HexRing( Center, i );
-			Results.Append( HexToAdd );
+			Results.Append( HexToAdd );	
 		}
 	}
 	return Results;

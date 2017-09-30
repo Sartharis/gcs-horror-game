@@ -92,7 +92,7 @@ protected:
 
 	/**  A map mapping all added hexes to a HexTileData struct. If a coordinate is not in the map, 
 	there is no hex at that location */
-	UPROPERTY( Instanced )
+	UPROPERTY( Instanced, BlueprintReadOnly, Category = "Map Data" )
 	TMap<FHexVector, UHexTileData* > HexMap;
 
 	/** A map mapping a static mesh to an instanced mesh component. Used to quickly assign meshes 
