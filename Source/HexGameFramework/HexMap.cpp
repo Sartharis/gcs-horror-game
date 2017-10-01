@@ -31,7 +31,6 @@ UHexTileData::UHexTileData( FHexVector HexLocation_, TSubclassOf<class UAbstract
 AHexMap::AHexMap() 
 	: SizeX(64), SizeY(64), HexOrientation( EHexOrientation::O_POINTY )
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 }
 
@@ -301,4 +300,55 @@ TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector En
 		//Will be empty (essentially failure)
 		return PathArray;
 	}
+}
+
+void AHexMap::RecalculateLights()
+{
+	LitTiles.Empty();
+	for( UHexLightComponent* LightSource : ActiveLights )
+	{
+		FHexVector LightSourcePos = LightSource->GetLightPosition();
+		TArray<FHexVector> TilesToLightUp = UHexFunctionLibrary::HexInRadius( LightSourcePos, 
+																			  LightSource->LightRadius);
+		for( FHexVector& TileLight : TilesToLightUp )
+		{
+			bool WallHit = false;
+			TArray<FHexVector> TilesToCheck = UHexFunctionLibrary::HexLine( LightSourcePos, TileLight );
+			if( TilesToCheck.Num() > 0 )
+			{
+				for( FHexVector& TileCheck : TilesToCheck )
+				{
+					UAbstractHexTile* TileData = UHexFunctionLibrary::GetTileTypeObject( this, TileCheck );
+					if( !TileData || TileData->IsWall )
+					{
+						WallHit = true;
+						break;
+					}
+				}
+			}
+			if( !WallHit )
+			{
+				LitTiles.Add( TileLight );
+			}
+		}
+	}
+	NotifyTileActorsOfLightChange();
+	
+}
+
+bool AHexMap::IsTileLitUp( FHexVector HexLocation )
+{
+	return LitTiles.Find( HexLocation ) != NULL;
+}
+
+void AHexMap::AddLightSource( UHexLightComponent* LightSource )
+{
+	ActiveLights.Add( LightSource );
+	RecalculateLights();
+}
+
+void AHexMap::RemoveLightSource( UHexLightComponent* LightSource )
+{
+	ActiveLights.Remove( LightSource );
+	RecalculateLights();
 }

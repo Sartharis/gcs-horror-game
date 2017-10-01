@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "HexGameFramework.h"
 #include "Hex.generated.h"
 
