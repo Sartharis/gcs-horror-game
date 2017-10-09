@@ -51,11 +51,15 @@ class UHexTileData : public UObject
 	UHexTileData();
 	UHexTileData( FHexVector HexLocation_, TSubclassOf<class UAbstractHexTile> HexTileType_ );
 
+	/** Whether the current tile should be treated as a wall*/
+	UPROPERTY( BlueprintReadWrite, Category = "Hex Data" )
+	bool IsWall;
+
 	/** The location of this hex tile*/
-	UPROPERTY( BlueprintReadOnly, Category="Hex Data" )
+	UPROPERTY( BlueprintReadOnly, Category ="Hex Data" )
 	FHexVector HexLocation;
 
-	/** The class that contains all data of the given tile*/
+	/** The class that contains all default data of the given tile*/
 	UPROPERTY( BlueprintReadOnly, Category = "Hex Data" )
 	TSubclassOf<class UAbstractHexTile> HexTileType;
 
@@ -137,6 +141,9 @@ public:
 
 	//HEX DATA------------------------------------------------------------------------------------------------
 	UFUNCTION( BlueprintPure, Category = "Hex Data" )
+	TArray<FHexVector> GetAllTilesOnMap();
+
+	UFUNCTION( BlueprintPure, Category = "Hex Data" )
 	UHexTileData* GetDataAtHex( const FHexVector& Hex );
 
 	UFUNCTION( BlueprintCallable, Category = "Hex Data" )
@@ -144,6 +151,9 @@ public:
 
 	UFUNCTION( BlueprintCallable, Category = "Hex Data" )
 	bool UnregisterActorFromHex( const FHexVector& Hex, AActor* Actor );
+
+	UFUNCTION( BlueprintCallable, Category = "Hex Data" )
+	bool TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclassOf<AActor>> ActorsToIgnore );
 
 	// MESH INSTANCING---------------------------------------------------------------------------------------
 	/**Checks if the given static mesh has a corresponding instanced mesh component*/
@@ -158,7 +168,7 @@ public:
 	/**Uses A* algorith to return an array of hex vectors corresponding to the path between hex A and B. 
 	   If there is no path, an empty array is returned*/
 	UFUNCTION( BlueprintPure, meta = ( Keywords = "pathfinding navigation" ), Category = "Pathfinding" )
-	TArray<FHexVector> GetPathBetweenHexes( FHexVector A, FHexVector B );
+	TArray<FHexVector> GetPathBetweenHexes( FHexVector A, FHexVector B, const TArray<TSubclassOf<AActor>> ActorsToIgnore );
 
 	//LIGHTS--------------------------------------------------------------------------------------------------
 	/** Sends a broadcast when the component starts its turn*/
@@ -176,4 +186,10 @@ public:
 	void AddLightSource( UHexLightComponent* LightSource);
 
 	void RemoveLightSource( UHexLightComponent* LightSource );
+
+	UFUNCTION( BlueprintImplementableEvent, BlueprintCallable, Category = "Light" )
+	void UpdateMeshShadows( const TArray<FHexVector>& ChangedTiles );
+
+	UFUNCTION( BlueprintImplementableEvent, BlueprintCallable, Category = "Light" )
+	void UpdateAllMeshShadows();
 };

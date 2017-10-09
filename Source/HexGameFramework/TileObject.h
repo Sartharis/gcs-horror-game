@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "TileObject.generated.h"
 
+
 UCLASS()
 class HEXGAMEFRAMEWORK_API ATileObject : public AActor
 {
@@ -14,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ATileObject();
 
-	UFUNCTION( BlueprintImplementableEvent, Category = "Light" )
-	void OnLightChange( bool IsLit );
+	UPROPERTY( BlueprintReadWrite, EditAnywhere, Category = "Tile Collision")
+	bool BlockActors;
+
+	UPROPERTY( BlueprintReadWrite, EditAnywhere, Category = "Tile Collision" )
+	TArray<TSubclassOf<AActor>> ActorsToIgnoreBlockFrom;
 };

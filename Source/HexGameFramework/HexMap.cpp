@@ -2,6 +2,7 @@
 
 #include "HexGameFramework.h"
 #include "HexFunctionLibrary.h"
+#include "TileObject.h"
 #include "HexMap.h"
 
 Orientation Orientation::GetOrientation( EHexOrientation::Type OrientationEnum )
@@ -19,7 +20,6 @@ Orientation Orientation::GetOrientation( EHexOrientation::Type OrientationEnum )
 }
 
 UHexTileData::UHexTileData( )
-
 {
 }
 
@@ -93,6 +93,7 @@ void AHexMap::AddOrChangeHex( const FHexVector& Hex, const TSubclassOf<UAbstract
 	if( TilePtr != nullptr )
 	{
 		(*TilePtr)->HexTileType = HexTile;
+		( *TilePtr )->IsWall = Cast<UAbstractHexTile>( ( *TilePtr )->HexTileType->GetDefaultObject() )->IsWall;
 	}
 	else
 	{
@@ -100,6 +101,7 @@ void AHexMap::AddOrChangeHex( const FHexVector& Hex, const TSubclassOf<UAbstract
 		//There has to be a better way to do this
 		NewTileData->HexLocation = Hex;
 		NewTileData->HexTileType = HexTile;
+		NewTileData->IsWall = Cast<UAbstractHexTile>( HexTile->GetDefaultObject() )->IsWall;
 		HexMap.Add( Hex, NewTileData );
 	}
 	//Update all of the instanced meshes to reflect the new changes.
@@ -131,6 +133,13 @@ bool AHexMap::RemoveHex( const FHexVector& Hex, bool CallUpdateMesh /*= true */ 
 	}
 
 
+}
+
+TArray<FHexVector> AHexMap::GetAllTilesOnMap()
+{
+	TArray<FHexVector> KeyArray;
+	HexMap.GenerateKeyArray( KeyArray );
+	return KeyArray;
 }
 
 UHexTileData* AHexMap::GetDataAtHex( const FHexVector& Hex)
@@ -176,6 +185,35 @@ bool AHexMap::UnregisterActorFromHex( const FHexVector& Hex, AActor* Actor )
 	}
 }
 
+bool AHexMap::TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclassOf<AActor>> ActorsToIgnore )
+{
+	UHexTileData* Tile = GetDataAtHex( Hex );
+	bool FoundBlocker = false;
+	if( Tile != nullptr && Tile->ActorsOnTile.Num() > 0 )
+	{
+		TArray<AActor*> Actors = Tile->ActorsOnTile.Array();
+		for( AActor* Actor : Actors )
+		{
+			ATileObject* TileObj = Cast<ATileObject>( Actor );
+			if( TileObj->BlockActors )
+			{
+				bool FoundIgnore = false;
+				for( TSubclassOf<AActor> IgnoreActor : ActorsToIgnore )
+				{
+					if( TileObj->GetClass()->IsChildOf( IgnoreActor ) )
+					{
+						FoundIgnore = true;
+						break;
+					}
+				}
+				FoundBlocker = !FoundIgnore;
+				break;
+			}
+		}
+	}
+	return FoundBlocker;
+}
+
 bool AHexMap::HasMeshBeenInstanced( const UStaticMesh* Mesh )
 {
 	bool MeshInstanced = false;
@@ -211,7 +249,7 @@ void AHexMap::UpdateAllInstancedMeshes()
 	}
 }
 
-TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector End )
+TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector End, const TArray<TSubclassOf<AActor>> ActorsToIgnore )
 {
 	//I'm defining the struct here cause we don't need it anywhere else
 	struct FHexVectorPathData
@@ -274,9 +312,7 @@ TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector En
 				for( FHexVector& Neighbor : Neighbors )
 				{
 					UHexTileData** Tile = HexMap.Find( Neighbor );
-					if( !ClosedSet.Contains( Neighbor ) 
-						&& Tile != nullptr 
-						&& !Cast<UAbstractHexTile>( (*Tile)->HexTileType->GetDefaultObject() )->IsWall )
+					if( !ClosedSet.Contains( Neighbor ) && Tile != nullptr && !(*Tile)->IsWall && !TileHasBlockingActor(Neighbor, ActorsToIgnore) )
 					{
 						int32 TentativeGScore = PathDataMap.FindChecked( Current ).G + FHexVector::DistanceBetween( Current, Neighbor );
 
@@ -304,12 +340,16 @@ TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector En
 
 void AHexMap::RecalculateLights()
 {
+	TSet<FHexVector> ChangedTiles;
+	ChangedTiles.Append( LitTiles );
+
 	LitTiles.Empty();
 	for( UHexLightComponent* LightSource : ActiveLights )
 	{
 		FHexVector LightSourcePos = LightSource->GetLightPosition();
 		TArray<FHexVector> TilesToLightUp = UHexFunctionLibrary::HexInRadius( LightSourcePos, 
 																			  LightSource->LightRadius);
+		LitTiles.Add( LightSourcePos );
 		for( FHexVector& TileLight : TilesToLightUp )
 		{
 			bool WallHit = false;
@@ -319,7 +359,7 @@ void AHexMap::RecalculateLights()
 				for( FHexVector& TileCheck : TilesToCheck )
 				{
 					UAbstractHexTile* TileData = UHexFunctionLibrary::GetTileTypeObject( this, TileCheck );
-					if( !TileData || TileData->IsWall )
+					if( (!TileData || TileData->IsWall) && TileCheck != TileLight )
 					{
 						WallHit = true;
 						break;
@@ -329,9 +369,22 @@ void AHexMap::RecalculateLights()
 			if( !WallHit )
 			{
 				LitTiles.Add( TileLight );
+
+				//Check if we need to update the current tile's shadows
+				if( ChangedTiles.Contains( TileLight ) )
+				{
+					//Tile was lit up before and still is, no change!
+					ChangedTiles.Remove( TileLight );
+				}
+				else
+				{
+					//A newly lit up tile!
+					ChangedTiles.Add( TileLight );
+				}
 			}
 		}
 	}
+	UpdateMeshShadows( ChangedTiles.Array() );
 	NotifyTileActorsOfLightChange();
 	
 }
