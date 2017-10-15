@@ -13,6 +13,10 @@ AHexGameFrameworkGameModeBase::AHexGameFrameworkGameModeBase()
 
 UTurnManager* AHexGameFrameworkGameModeBase::GetTurnManager()
 {
+	if( TurnManager == NULL )
+	{
+		TurnManager = NewObject<UTurnManager>();
+	}
 	return TurnManager;
 }
 

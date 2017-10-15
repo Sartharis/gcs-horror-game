@@ -27,9 +27,7 @@ public:
 	UPROPERTY( BlueprintReadWrite, Category = "Hex Map" )
 	AActor* PlayerController;
 
-
-private:
-	UPROPERTY()
+	UPROPERTY( BlueprintReadWrite, Category = "Turn Manager" )
 	UTurnManager* TurnManager;
 	
 	

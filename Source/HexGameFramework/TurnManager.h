@@ -73,7 +73,7 @@ public:
 /**
  * 
  */
-UCLASS()
+UCLASS( BlueprintType )
 class HEXGAMEFRAMEWORK_API UTurnManager : public UObject
 {
 	GENERATED_BODY()
@@ -87,6 +87,12 @@ public:
 
 	/**Called by turn components to signify they finished their turn*/
 	void FinishMove( UTurnComponent* TurnComponent );
+	/**Forces The current turn to finish*/
+	UFUNCTION(BlueprintCallable, Category="Turn")
+	void FinishTurn();
+
+	UFUNCTION(BlueprintPure, Category="Turn")
+	ETurnCategory::Type GetCurrentTurnCategory();
 	/**Reset the turn manager (like we were starting turns from scratch)*/
 	void ResetTurnManager();
 

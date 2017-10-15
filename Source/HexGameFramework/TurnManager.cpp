@@ -51,6 +51,17 @@ void UTurnManager::FinishMove( UTurnComponent* TurnComponent )
 	}
 }
 
+void UTurnManager::FinishTurn()
+{
+	TurnComponentsLeftToMove.Empty();
+	OnTurnStateUpdate();
+}
+
+ETurnCategory::Type UTurnManager::GetCurrentTurnCategory()
+{
+	return TurnOrder[CurrentTurn];
+}
+
 void UTurnManager::OnTurnStateUpdate()
 {
 	if( TurnComponentsLeftToMove.Num() <= 0 )
