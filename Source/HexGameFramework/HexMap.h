@@ -153,7 +153,7 @@ public:
 	bool UnregisterActorFromHex( const FHexVector& Hex, AActor* Actor );
 
 	UFUNCTION( BlueprintCallable, Category = "Hex Data" )
-	bool TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclassOf<AActor>> ActorsToIgnore );
+	bool TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclassOf<AActor>> ActorsToIgnore, TArray<AActor*> SpecificActorToIgnore );
 
 	// MESH INSTANCING---------------------------------------------------------------------------------------
 	/**Checks if the given static mesh has a corresponding instanced mesh component*/
@@ -168,7 +168,7 @@ public:
 	/**Uses A* algorith to return an array of hex vectors corresponding to the path between hex A and B. 
 	   If there is no path, an empty array is returned*/
 	UFUNCTION( BlueprintPure, meta = ( Keywords = "pathfinding navigation" ), Category = "Pathfinding" )
-	TArray<FHexVector> GetPathBetweenHexes( FHexVector A, FHexVector B, const TArray<TSubclassOf<AActor>> ActorsToIgnore );
+	TArray<FHexVector> GetPathBetweenHexes( FHexVector A, FHexVector B, const TArray<TSubclassOf<AActor>> ActorsToIgnore, TArray<AActor*> SpecificActorToIgnore );
 
 	//LIGHTS--------------------------------------------------------------------------------------------------
 	/** Sends a broadcast when the component starts its turn*/

@@ -94,6 +94,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="Turn")
 	ETurnCategory::Type GetCurrentTurnCategory();
 	/**Reset the turn manager (like we were starting turns from scratch)*/
+	UFUNCTION( BlueprintCallable, Category = "Turn" )
 	void ResetTurnManager();
 
 private:

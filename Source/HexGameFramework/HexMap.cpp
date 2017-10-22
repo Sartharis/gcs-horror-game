@@ -185,7 +185,7 @@ bool AHexMap::UnregisterActorFromHex( const FHexVector& Hex, AActor* Actor )
 	}
 }
 
-bool AHexMap::TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclassOf<AActor>> ActorsToIgnore )
+bool AHexMap::TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclassOf<AActor>> ActorsToIgnore, TArray<AActor*> SpecificActorToIgnore )
 {
 	UHexTileData* Tile = GetDataAtHex( Hex );
 	bool FoundBlocker = false;
@@ -194,20 +194,23 @@ bool AHexMap::TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclas
 		TArray<AActor*> Actors = Tile->ActorsOnTile.Array();
 		for( AActor* Actor : Actors )
 		{
-			ATileObject* TileObj = Cast<ATileObject>( Actor );
-			if( TileObj->BlockActors )
+			if( !SpecificActorToIgnore.Contains( Actor ) )
 			{
-				bool FoundIgnore = false;
-				for( TSubclassOf<AActor> IgnoreActor : ActorsToIgnore )
+				ATileObject* TileObj = Cast<ATileObject>( Actor );
+				if( TileObj->BlockActors )
 				{
-					if( TileObj->GetClass()->IsChildOf( IgnoreActor ) )
+					bool FoundIgnore = false;
+					for( TSubclassOf<AActor> IgnoreActor : ActorsToIgnore )
 					{
-						FoundIgnore = true;
-						break;
+						if( TileObj->GetClass()->IsChildOf( IgnoreActor ) )
+						{
+							FoundIgnore = true;
+							break;
+						}
 					}
+					FoundBlocker = !FoundIgnore;
+					break;
 				}
-				FoundBlocker = !FoundIgnore;
-				break;
 			}
 		}
 	}
@@ -249,7 +252,7 @@ void AHexMap::UpdateAllInstancedMeshes()
 	}
 }
 
-TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector End, const TArray<TSubclassOf<AActor>> ActorsToIgnore )
+TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector End, const TArray<TSubclassOf<AActor>> ActorsToIgnore, TArray<AActor*> SpecificActorToIgnore )
 {
 	//I'm defining the struct here cause we don't need it anywhere else
 	struct FHexVectorPathData
@@ -312,7 +315,7 @@ TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector En
 				for( FHexVector& Neighbor : Neighbors )
 				{
 					UHexTileData** Tile = HexMap.Find( Neighbor );
-					if( !ClosedSet.Contains( Neighbor ) && Tile != nullptr && !(*Tile)->IsWall && !TileHasBlockingActor(Neighbor, ActorsToIgnore) )
+					if( !ClosedSet.Contains( Neighbor ) && Tile != nullptr && !(*Tile)->IsWall && !TileHasBlockingActor(Neighbor, ActorsToIgnore, SpecificActorToIgnore ) )
 					{
 						int32 TentativeGScore = PathDataMap.FindChecked( Current ).G + FHexVector::DistanceBetween( Current, Neighbor );
 
