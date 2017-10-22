@@ -54,6 +54,8 @@ SourceArt/**/*.tga
 # Builds
 Build/*
 
+GCS GAME BUILD/*
+
 # Whitelist PakBlacklist-<BuildConfiguration>.txt files
 !Build/*/
 Build/*/**
