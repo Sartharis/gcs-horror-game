@@ -170,6 +170,14 @@ public:
 	UFUNCTION( BlueprintPure, meta = ( Keywords = "pathfinding navigation" ), Category = "Pathfinding" )
 	TArray<FHexVector> GetPathBetweenHexes( FHexVector A, FHexVector B, const TArray<TSubclassOf<AActor>> ActorsToIgnore, TArray<AActor*> SpecificActorToIgnore );
 
+	/**Checks if tiles A and B can see each other*/
+	UFUNCTION( BlueprintPure, meta = ( Keywords = "see find line" ), Category = "Pathfinding" )
+	bool HasLineOfSight( FHexVector A, FHexVector B );
+
+	/** Checks if we can reach B from A in a straight line*/
+	UFUNCTION( BlueprintPure, meta = ( Keywords = "straight" ), Category = "Pathfinding" )
+	bool HasDirectLine( FHexVector A, FHexVector B );
+
 	//LIGHTS--------------------------------------------------------------------------------------------------
 	/** Sends a broadcast when the component starts its turn*/
 	UPROPERTY( BlueprintAssignable, Category = "Light" )

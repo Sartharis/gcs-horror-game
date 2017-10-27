@@ -25,6 +25,9 @@ public:
 	
 	UFUNCTION( BlueprintCallable, Category = "Light" )
 	void SetLightPosition( FHexVector NewPosition );
+
+	UFUNCTION( BlueprintCallable, Category = "Light" )
+	void SetLightRadius( int NewRadius );
 	
 	UFUNCTION( BlueprintPure, Category = "Light" )
 	FHexVector GetLightPosition();

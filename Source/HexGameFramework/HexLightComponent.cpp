@@ -19,6 +19,16 @@ void UHexLightComponent::SetLightPosition( FHexVector NewPosition )
 	}
 }
 
+void UHexLightComponent::SetLightRadius( int NewRadius )
+{
+	LightRadius = NewRadius;
+	AHexMap* HexMap = UHexFunctionLibrary::GetHexGameMode( this )->CurrentHexMap;
+	if( Active && HexMap != NULL )
+	{
+		HexMap->RecalculateLights();
+	}
+}
+
 FHexVector UHexLightComponent::GetLightPosition()
 {
 	return LightLocation;

@@ -341,6 +341,42 @@ TArray<FHexVector> AHexMap::GetPathBetweenHexes( FHexVector Start, FHexVector En
 	}
 }
 
+bool AHexMap::HasLineOfSight( FHexVector A, FHexVector B )
+{
+	TArray<FHexVector> TilesToCheck = UHexFunctionLibrary::HexLine( A, B );
+	if( TilesToCheck.Num() > 0 )
+	{
+		for( FHexVector& TileCheck : TilesToCheck )
+		{
+			UAbstractHexTile* TileData = UHexFunctionLibrary::GetTileTypeObject( this, TileCheck );
+			if( !TileData || TileData->IsWall )
+			{
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool AHexMap::HasDirectLine( FHexVector A, FHexVector B )
+{
+	TArray<FHexVector> TilesToCheck = UHexFunctionLibrary::HexLine( A, B );
+	if( TilesToCheck.Num() > 1 )
+	{
+		FHexVector DirVec = TilesToCheck[0] - TilesToCheck[1];
+		if( DirVec.Length() != 1 ) return false;
+		for( int i = 1; i < TilesToCheck.Num()-1; i++ )
+		{
+			FHexVector CheckVec = TilesToCheck[i] - TilesToCheck[i + 1];
+			if( CheckVec.Length() != 1 || CheckVec != DirVec )
+			{
+				return false;
+			}
+		}
+	}
+	return HasLineOfSight(A,B);
+}
+
 void AHexMap::RecalculateLights()
 {
 	TSet<FHexVector> ChangedTiles;
