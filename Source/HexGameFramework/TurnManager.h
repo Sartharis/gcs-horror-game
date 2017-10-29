@@ -118,4 +118,6 @@ private:
 	void ActivateTurnComponents();
 	/** Start the next round and reset the turn order array*/
 	void StartNextRound();
+	/** Counts the number of different categories of turn components registered to turn manager*/
+	int CountRegisteredTypes();
 };
