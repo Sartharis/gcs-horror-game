@@ -4,6 +4,6 @@
 	"BuildId" : "3665371c-35da-46d7-844b-511714c0034a",
 	"Modules" : 
 	{
-		"HexGameFramework" : "UE4Editor-HexGameFramework-7331.dylib"
+		"HexGameFramework" : "UE4Editor-HexGameFramework.dylib"
 	}
 }
