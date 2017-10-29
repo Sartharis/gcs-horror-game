@@ -64,7 +64,7 @@ ETurnCategory::Type UTurnManager::GetCurrentTurnCategory()
 
 void UTurnManager::OnTurnStateUpdate()
 {
-	if( TurnComponentsLeftToMove.Num() <= 0 )
+	if( TurnComponentsLeftToMove.Num() <= 0 && CountRegisteredTypes() >= 2)
 	{
 		StartNextTurn();
 	}
@@ -110,6 +110,22 @@ void UTurnManager::ActivateTurnComponents()
 void UTurnManager::StartNextRound()
 {
 	CurrentRound += 1;
+}
+
+int UTurnManager::CountRegisteredTypes()
+{
+	TArray<int32> Existingtypes;
+	if( TurnComponentsRegistered.Num() > 0 )
+	{
+		for( UTurnComponent* TurnComponent : TurnComponentsRegistered )
+		{
+			if( Existingtypes.Find(TurnComponent->TurnType) == INDEX_NONE)
+			{
+				Existingtypes.Add( TurnComponent->TurnType );
+			}
+		}
+	}
+	return Existingtypes.Num();
 }
 
 //TURN COMPONENT-------------------------------------------------------------------------------------
