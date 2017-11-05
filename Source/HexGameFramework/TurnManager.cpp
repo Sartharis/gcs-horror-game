@@ -22,8 +22,7 @@ void UTurnManager::RegisterTurnComponent( UTurnComponent* TurnComponent, bool In
 		TurnComponentsRegistered.Add( TurnComponent );
 		if( InsertIntoTurn && TurnComponent->TurnType == CurrentTurn )
 		{
-			TurnComponentsLeftToMove.AddUnique( TurnComponent );
-			TurnComponent->StartTurn();
+			ActivateTurnComponent( TurnComponent );
 		}
 		OnTurnStateUpdate();
 	}
@@ -49,12 +48,23 @@ void UTurnManager::FinishMove( UTurnComponent* TurnComponent )
 		TurnComponentsLeftToMove.Remove( TurnComponent );
 		OnTurnStateUpdate();
 	}
+	else if(TurnComponentsLeftToMoveNonSync.Find(TurnComponent) != INDEX_NONE)
+	{
+		TurnComponentsLeftToMoveNonSync.Remove( TurnComponent );
+		OnTurnStateUpdate();
+	}
 }
 
-void UTurnManager::FinishTurn()
+bool UTurnManager::FinishTurn()
 {
-	TurnComponentsLeftToMove.Empty();
-	OnTurnStateUpdate();
+	if( TurnBlockers.Num() <= 0 )
+	{
+		TurnComponentsLeftToMove.Empty();
+		TurnComponentsLeftToMoveNonSync.Empty();
+		OnTurnStateUpdate();
+		return true;
+	}
+	return false;
 }
 
 ETurnCategory::Type UTurnManager::GetCurrentTurnCategory()
@@ -64,9 +74,17 @@ ETurnCategory::Type UTurnManager::GetCurrentTurnCategory()
 
 void UTurnManager::OnTurnStateUpdate()
 {
-	if( TurnComponentsLeftToMove.Num() <= 0 && CountRegisteredTypes() >= 2)
+	if( TurnComponentsLeftToMove.Num() <= 0 && CountRegisteredTypes() >= 2 )
 	{
-		StartNextTurn();
+		if( TurnComponentsLeftToMoveNonSync.Num() > 0 )
+		{
+			int32 MaxNum = TurnComponentsLeftToMoveNonSync.Num();
+			TurnComponentsLeftToMoveNonSync[FMath::RandRange(0,MaxNum - 1)]->StartTurn();
+		}
+		else
+		{
+			StartNextTurn();
+		}
 	}
 }
 
@@ -75,6 +93,7 @@ void UTurnManager::ResetTurnManager()
 	CurrentTurn = 0;
 	CurrentRound = 0;
 	TurnComponentsLeftToMove.Empty();
+	TurnComponentsLeftToMoveNonSync.Empty();
 	ActivateTurnComponents();
 }
 
@@ -99,12 +118,24 @@ void UTurnManager::ActivateTurnComponents()
 		{
 			if( TurnComponent->TurnType == TurnOrder[CurrentTurn] )
 			{
-				TurnComponentsLeftToMove.AddUnique( TurnComponent );
-				TurnComponent->StartTurn();
+				ActivateTurnComponent( TurnComponent );
 			}
 		}
 	}
 	OnTurnStateUpdate();
+}
+
+void UTurnManager::ActivateTurnComponent( UTurnComponent* TurnComponent )
+{
+	if( TurnComponent->Synchronous )
+	{
+		TurnComponent->StartTurn();
+		TurnComponentsLeftToMove.AddUnique( TurnComponent );
+	}
+	else
+	{
+		TurnComponentsLeftToMoveNonSync.AddUnique( TurnComponent );
+	}
 }
 
 void UTurnManager::StartNextRound()
@@ -126,6 +157,32 @@ int UTurnManager::CountRegisteredTypes()
 		}
 	}
 	return Existingtypes.Num();
+}
+
+bool UTurnManager::AddTurnBlocker( FString BlockerName )
+{
+	if( TurnBlockers.Find( BlockerName ) != NULL )
+	{
+		return false;
+	}
+	else
+	{
+		TurnBlockers.Add( BlockerName );
+		return true;
+	}
+}
+
+bool UTurnManager::RemoveTurnBlocker( FString BlockerName )
+{
+	if( TurnBlockers.Find( BlockerName ) != NULL )
+	{
+		TurnBlockers.Remove( BlockerName );
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 //TURN COMPONENT-------------------------------------------------------------------------------------
@@ -168,6 +225,20 @@ void UTurnComponent::EndTurn()
 	UTurnManager* TurnManager = UHexFunctionLibrary::GetHexGameMode( this )->GetTurnManager();
 	check( TurnManager != nullptr );
 	TurnManager->FinishMove( this );
+}
+
+void UTurnComponent::BlockTurnEnd()
+{
+	UTurnManager* TurnManager = UHexFunctionLibrary::GetHexGameMode( this )->GetTurnManager();
+	check( TurnManager != nullptr );
+	TurnManager->AddTurnBlocker( this->GetName() );
+}
+
+void UTurnComponent::UnblockTurnEnd()
+{
+	UTurnManager* TurnManager = UHexFunctionLibrary::GetHexGameMode( this )->GetTurnManager();
+	check( TurnManager != nullptr );
+	TurnManager->RemoveTurnBlocker( this->GetName() );
 }
 
 void UTurnComponent::BeginPlay()

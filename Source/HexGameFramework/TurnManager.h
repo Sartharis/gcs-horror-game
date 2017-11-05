@@ -42,6 +42,11 @@ public:
 	UPROPERTY( EditAnywhere, Category = "Turn" )
 	TEnumAsByte<ETurnCategory::Type> TurnType;
 
+	/** Determines whether this actor can act at the same time as others, 
+		or should it wait until it can move by itself*/
+	UPROPERTY( EditAnywhere, Category = "Turn" )
+	bool Synchronous;
+
 	/** true iff the component can still take an action in whatever turn is happening*/
 	UPROPERTY( BlueprintReadOnly, Category = "Turn" )
 	bool Active;
@@ -65,6 +70,14 @@ public:
 	UFUNCTION( BlueprintCallable, Category="Turn" )
 	void EndTurn();
 
+	/** block the component's turn from ending early*/
+	UFUNCTION( BlueprintCallable, Category = "Turn" )
+	void BlockTurnEnd();
+
+	/** unblock the component's turn from ending early*/
+	UFUNCTION( BlueprintCallable, Category = "Turn" )
+	void UnblockTurnEnd();
+
 	virtual void BeginPlay() override;
 
 	
@@ -87,15 +100,25 @@ public:
 
 	/**Called by turn components to signify they finished their turn*/
 	void FinishMove( UTurnComponent* TurnComponent );
-	/**Forces The current turn to finish*/
+	/**Forces The current turn to finish, unless there is a turn blocker active*/
 	UFUNCTION(BlueprintCallable, Category="Turn")
-	void FinishTurn();
+	bool FinishTurn();
 
+	/***/
 	UFUNCTION(BlueprintPure, Category="Turn")
 	ETurnCategory::Type GetCurrentTurnCategory();
+
 	/**Reset the turn manager (like we were starting turns from scratch)*/
 	UFUNCTION( BlueprintCallable, Category = "Turn" )
 	void ResetTurnManager();
+
+	/** Adds a new turn blocker. Returns whether addition was successful or not*/
+	UFUNCTION( BlueprintCallable, Category = "Turn" )
+	bool AddTurnBlocker( FString BlockerName );
+
+	/** Removes a turn blocker. Returns whether removal was successful or not*/
+	UFUNCTION( BlueprintCallable, Category = "Turn" )
+	bool RemoveTurnBlocker( FString BlockerName );
 
 private:
 	/** Turn components currently registered in the manager*/
@@ -104,10 +127,16 @@ private:
 	TArray<ETurnCategory::Type> TurnOrder;
 	/** How many components still have to move in this turn */
 	TArray<UTurnComponent*> TurnComponentsLeftToMove;
+	/** How many non-synchronous components still have to move in this turn */
+	TArray<UTurnComponent*> TurnComponentsLeftToMoveNonSync;
 	/** The current turn we are in (according to turn order). Resets every round*/
 	int32 CurrentTurn;
 	/** The current round we are in*/
 	int32 CurrentRound;
+
+	TSet<FString> TurnBlockers;
+
+	UTurnComponent* CurrentNonSync;
 
 	/** Called whenever some turn component changes its turn state (finishes, starts, registers etc.)*/
 	void OnTurnStateUpdate();
@@ -116,8 +145,11 @@ private:
 	void StartNextTurn();
 	/** Activate all turn components in the current turn*/
 	void ActivateTurnComponents();
+	/** Activates a turn component for the turn*/
+	void ActivateTurnComponent( UTurnComponent* TurnComponent );
 	/** Start the next round and reset the turn order array*/
 	void StartNextRound();
 	/** Counts the number of different categories of turn components registered to turn manager*/
 	int CountRegisteredTypes();
+
 };
