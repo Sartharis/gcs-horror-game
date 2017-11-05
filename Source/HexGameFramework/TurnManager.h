@@ -42,6 +42,10 @@ public:
 	UPROPERTY( EditAnywhere, Category = "Turn" )
 	TEnumAsByte<ETurnCategory::Type> TurnType;
 
+	/**Determines whether the component should be inserted into the current turn when spawned*/
+	UPROPERTY( EditAnywhere, Category = "Turn" )
+	bool bAutoJoinCurrentTurn;
+
 	/** Determines whether this actor can act at the same time as others, 
 		or should it wait until it can move by itself*/
 	UPROPERTY( EditAnywhere, Category = "Turn" )
