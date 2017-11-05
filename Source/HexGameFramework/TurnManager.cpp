@@ -11,6 +11,11 @@ UTurnManager::UTurnManager()
 {
 }
 
+int32 UTurnManager::GetCurrentRound()
+{
+	return CurrentRound;
+}
+
 void UTurnManager::RegisterTurnComponent( UTurnComponent* TurnComponent, bool InsertIntoTurn /*= false */ )
 {
 	if( TurnComponentsRegistered.Find( TurnComponent ) != INDEX_NONE )
@@ -141,6 +146,7 @@ void UTurnManager::ActivateTurnComponent( UTurnComponent* TurnComponent )
 void UTurnManager::StartNextRound()
 {
 	CurrentRound += 1;
+	RoundStart.Broadcast(CurrentRound);
 }
 
 int UTurnManager::CountRegisteredTypes()

@@ -83,6 +83,8 @@ public:
 	
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FRoundStart, int32, CurrentRound );
+
 /**
  * 
  */
@@ -92,6 +94,14 @@ class HEXGAMEFRAMEWORK_API UTurnManager : public UObject
 	GENERATED_BODY()
 public:
 	UTurnManager();
+
+	/** Sends a broadcast when the component ends its turn*/
+	UPROPERTY( BlueprintAssignable, Category = "Turn" )
+	FRoundStart RoundStart;
+
+	/** Gets current round*/
+	UFUNCTION( BlueprintPure, Category = "Turn" )
+	int32 GetCurrentRound();
 	
 	/** Add a turn component to track */
 	void RegisterTurnComponent( UTurnComponent* TurnComponent, bool InsertIntoTurn = false );
@@ -119,6 +129,8 @@ public:
 	/** Removes a turn blocker. Returns whether removal was successful or not*/
 	UFUNCTION( BlueprintCallable, Category = "Turn" )
 	bool RemoveTurnBlocker( FString BlockerName );
+
+	
 
 private:
 	/** Turn components currently registered in the manager*/
