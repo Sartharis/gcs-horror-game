@@ -48,6 +48,7 @@ void UHexLightComponent::ToggleLight( bool Activate )
 			HexMap->RemoveLightSource( this );
 		}
 		Active = Activate;
+		OnLightChanged.Broadcast( Active );
 	}
 }
 

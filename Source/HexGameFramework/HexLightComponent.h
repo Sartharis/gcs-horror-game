@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "HexLightComponent.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FLightChanged, bool, IsLightOn );
 /**
 *
 */
@@ -14,6 +16,10 @@ class HEXGAMEFRAMEWORK_API UHexLightComponent : public UActorComponent
 
 public:
 	UHexLightComponent();
+
+	/** Sends a broadcast when the component starts its turn*/
+	UPROPERTY( BlueprintAssignable, Category = "Light" )
+	FLightChanged OnLightChanged;
 
 	/** How far the light source shines*/
 	UPROPERTY( EditAnywhere, BlueprintReadWrite, Category = "Light" )

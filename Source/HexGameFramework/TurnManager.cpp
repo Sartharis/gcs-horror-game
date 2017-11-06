@@ -64,6 +64,20 @@ bool UTurnManager::FinishTurn()
 {
 	if( TurnBlockers.Num() <= 0 )
 	{
+		for( int i = 0; i < TurnComponentsLeftToMove.Num() ; i++ )
+		{
+			if( TurnComponentsLeftToMove[i] != nullptr )
+			{
+				TurnComponentsLeftToMove[i]->EndTurn();
+			}
+		}
+		for( int i = 0; i < TurnComponentsLeftToMoveNonSync.Num(); i++ )
+		{
+			if( TurnComponentsLeftToMoveNonSync[i] != nullptr )
+			{
+				TurnComponentsLeftToMoveNonSync[i]->EndTurn();
+			}
+		}
 		TurnComponentsLeftToMove.Empty();
 		TurnComponentsLeftToMoveNonSync.Empty();
 		OnTurnStateUpdate();
