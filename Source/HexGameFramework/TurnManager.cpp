@@ -250,5 +250,5 @@ void UTurnComponent::UnblockTurnEnd()
 void UTurnComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	AddToTurnManager( true );
+	AddToTurnManager( bAutoJoinCurrentTurn );
 }
