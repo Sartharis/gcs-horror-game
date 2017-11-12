@@ -20,4 +20,7 @@ public:
 
 	UPROPERTY( BlueprintReadWrite, EditAnywhere, Category = "Tile Collision" )
 	TArray<TSubclassOf<AActor>> ActorsToIgnoreBlockFrom;
+
+	UFUNCTION( BlueprintCallable, Category = "Tile Collision" )
+	void SetBlocking( bool Blocking );
 };

@@ -19,3 +19,8 @@ UTurnManager* AHexGameFrameworkGameModeBase::GetTurnManager()
 	return TurnManager;
 }
 
+void AHexGameFrameworkGameModeBase::WorldCollisionChange()
+{
+	WorldCollisionChangeEvent.Broadcast();
+}
+

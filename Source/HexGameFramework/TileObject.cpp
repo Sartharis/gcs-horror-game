@@ -12,5 +12,13 @@ ATileObject::ATileObject()
 
 }
 
+void ATileObject::SetBlocking( bool Blocking )
+{
+	if( BlockActors != Blocking )
+	{
+		BlockActors = Blocking;
+		UHexFunctionLibrary::GetHexGameMode( this )->WorldCollisionChange();
+	}
+}
 
 

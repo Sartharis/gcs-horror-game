@@ -7,6 +7,8 @@
 #include "HexMap.h"
 #include "HexGameFrameworkGameModeBase.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE( FWorldCollisionChange );
 /**
  * 
  */
@@ -29,6 +31,12 @@ public:
 
 	UPROPERTY( BlueprintReadWrite, Category = "Turn Manager" )
 	UTurnManager* TurnManager;
+
+	UPROPERTY( BlueprintAssignable, Category = "Turn" )
+	FWorldCollisionChange WorldCollisionChangeEvent;
+
+	UFUNCTION( BlueprintCallable, Category = "Tile Collision" )
+	void WorldCollisionChange();
 	
 	
 	

@@ -88,6 +88,7 @@ public:
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FRoundStart, int32, CurrentRound );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam( FTurnStart, ETurnCategory::Type, TurnCategory );
 
 /**
  * 
@@ -99,9 +100,13 @@ class HEXGAMEFRAMEWORK_API UTurnManager : public UObject
 public:
 	UTurnManager();
 
-	/** Sends a broadcast when the component ends its turn*/
+	/** Sends a broadcast when a round starts*/
 	UPROPERTY( BlueprintAssignable, Category = "Turn" )
 	FRoundStart RoundStart;
+
+	/** Sends a broadcast when a turn starts*/
+	UPROPERTY( BlueprintAssignable, Category = "Turn" )
+	FTurnStart TurnStart;
 
 	/** Gets current round*/
 	UFUNCTION( BlueprintPure, Category = "Turn" )

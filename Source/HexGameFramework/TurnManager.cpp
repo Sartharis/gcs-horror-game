@@ -126,6 +126,7 @@ void UTurnManager::StartNextTurn()
 		StartNextRound();
 	}
 
+	TurnStart.Broadcast( TurnOrder[CurrentTurn] );
 	ActivateTurnComponents();
 }
 
