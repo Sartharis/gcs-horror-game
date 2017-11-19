@@ -100,6 +100,9 @@ class HEXGAMEFRAMEWORK_API UTurnManager : public UObject
 public:
 	UTurnManager();
 
+	UPROPERTY( BlueprintReadWrite, Category = "Turn" )
+	bool Paused;
+
 	/** Sends a broadcast when a round starts*/
 	UPROPERTY( BlueprintAssignable, Category = "Turn" )
 	FRoundStart RoundStart;

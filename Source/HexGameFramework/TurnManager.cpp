@@ -7,7 +7,7 @@
 
 UTurnManager::UTurnManager()
 	: TurnOrder{ ETurnCategory::TC_PLAYER, ETurnCategory::TC_ENEMY, ETurnCategory::TC_NEUTRAL }
-	, CurrentTurn( 0 ), CurrentRound( 0 )
+	, CurrentTurn( 0 ), CurrentRound( 0 ), Paused(true)
 {
 }
 
@@ -93,7 +93,7 @@ ETurnCategory::Type UTurnManager::GetCurrentTurnCategory()
 
 void UTurnManager::OnTurnStateUpdate()
 {
-	if( TurnComponentsLeftToMove.Num() <= 0 && CountRegisteredTypes() >= 2 )
+	if( !Paused && TurnComponentsLeftToMove.Num() <= 0 && CountRegisteredTypes() >= 2 )
 	{
 		if( TurnComponentsLeftToMoveNonSync.Num() > 0 )
 		{
