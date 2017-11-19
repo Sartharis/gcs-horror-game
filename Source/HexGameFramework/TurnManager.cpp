@@ -7,7 +7,7 @@
 
 UTurnManager::UTurnManager()
 	: TurnOrder{ ETurnCategory::TC_PLAYER, ETurnCategory::TC_ENEMY, ETurnCategory::TC_NEUTRAL }
-	, CurrentTurn( 0 ), CurrentRound( 0 ), Paused(true)
+	, CurrentTurn( 0 ), CurrentRound( 0 ), Paused(true), NonSyncPending(false)
 {
 }
 
@@ -55,6 +55,7 @@ void UTurnManager::FinishMove( UTurnComponent* TurnComponent )
 	}
 	else if(TurnComponentsLeftToMoveNonSync.Find(TurnComponent) != INDEX_NONE)
 	{
+		NonSyncPending = false;
 		TurnComponentsLeftToMoveNonSync.Remove( TurnComponent );
 		OnTurnStateUpdate();
 	}
@@ -78,6 +79,7 @@ bool UTurnManager::FinishTurn()
 				TurnComponentsLeftToMoveNonSync[i]->EndTurn();
 			}
 		}
+		NonSyncPending = false;
 		TurnComponentsLeftToMove.Empty();
 		TurnComponentsLeftToMoveNonSync.Empty();
 		OnTurnStateUpdate();
@@ -95,10 +97,11 @@ void UTurnManager::OnTurnStateUpdate()
 {
 	if( !Paused && TurnComponentsLeftToMove.Num() <= 0 && CountRegisteredTypes() >= 2 )
 	{
-		if( TurnComponentsLeftToMoveNonSync.Num() > 0 )
+		if( TurnComponentsLeftToMoveNonSync.Num() > 0 && !NonSyncPending)
 		{
 			int32 MaxNum = TurnComponentsLeftToMoveNonSync.Num();
 			TurnComponentsLeftToMoveNonSync[FMath::RandRange(0,MaxNum - 1)]->StartTurn();
+			NonSyncPending = true;
 		}
 		else
 		{

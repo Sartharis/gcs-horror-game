@@ -103,6 +103,9 @@ public:
 	UPROPERTY( BlueprintReadWrite, Category = "Turn" )
 	bool Paused;
 
+	UPROPERTY( BlueprintReadWrite, Category = "Turn" )
+	bool NonSyncPending;
+
 	/** Sends a broadcast when a round starts*/
 	UPROPERTY( BlueprintAssignable, Category = "Turn" )
 	FRoundStart RoundStart;
