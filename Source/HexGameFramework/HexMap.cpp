@@ -197,7 +197,7 @@ bool AHexMap::TileHasBlockingActor( const FHexVector& Hex, const TArray<TSubclas
 			if( !SpecificActorToIgnore.Contains( Actor ) )
 			{
 				ATileObject* TileObj = Cast<ATileObject>( Actor );
-				if( TileObj->BlockActors )
+				if( TileObj != NULL && TileObj->BlockActors )
 				{
 					bool FoundIgnore = false;
 					for( TSubclassOf<AActor> IgnoreActor : ActorsToIgnore )
