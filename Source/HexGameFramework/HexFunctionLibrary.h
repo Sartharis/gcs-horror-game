@@ -64,4 +64,10 @@ class HEXGAMEFRAMEWORK_API UHexFunctionLibrary : public UBlueprintFunctionLibrar
 	static FHexVector MakeHexVectorAxial( int32 X, int32 Y );
 
 	static AHexGameFrameworkGameModeBase* GetHexGameMode( const UObject* WorldContextObject );
+
+	UFUNCTION( BlueprintPure, Category = "Screen" )
+	static FVector2D GetGameViewportSize();
+
+	UFUNCTION( BlueprintPure, Category = "Screen" )
+	static FVector2D GetGameResolution();
 };
