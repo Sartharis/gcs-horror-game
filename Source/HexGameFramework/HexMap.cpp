@@ -31,6 +31,8 @@ UHexTileData::UHexTileData( FHexVector HexLocation_, TSubclassOf<class UAbstract
 AHexMap::AHexMap() 
 	: SizeX(64), SizeY(64), HexOrientation( EHexOrientation::O_POINTY )
 {
+	InstancedShadowComponent = CreateDefaultSubobject<UInstancedStaticMeshComponent>( TEXT( "InstancedShadowComponent" ) );
+	InstancedShadowComponent->SetupAttachment( RootComponent );
 	PrimaryActorTick.bCanEverTick = false;
 }
 
@@ -443,4 +445,50 @@ void AHexMap::RemoveLightSource( UHexLightComponent* LightSource )
 {
 	ActiveLights.Remove( LightSource );
 	RecalculateLights();
+}
+
+void AHexMap::UpdateMeshShadows_Implementation( const TArray<FHexVector>& ChangedTiles )
+{
+	for( FHexVector Tile : ChangedTiles )
+	{
+		if( IsTileLitUp( Tile ) || GetDataAtHex( Tile )->IsWall )
+		{
+			int32* Ind = ShadowIndices.Find( Tile );
+			if( Ind != nullptr )
+			{
+				UnusedShadowIndices.Add( *Ind );
+				InstancedShadowComponent->UpdateInstanceTransform( *Ind, 
+																	FTransform( FVector( 0.f, 0.f, -500.f )), 
+																	true, true, false );
+				ShadowIndices.Remove( Tile );
+			}
+		}
+		else
+		{
+			int32* Ind = ShadowIndices.Find( Tile );
+			if( Ind == nullptr )
+			{
+				int32 NewInd = -1;
+				if( UnusedShadowIndices.Num() > 0 )
+				{
+					NewInd = UnusedShadowIndices[0];
+					InstancedShadowComponent->UpdateInstanceTransform( NewInd
+																	   , FTransform(HexVectorToPoint( Tile ) ),
+																	   true, true, false );
+					UnusedShadowIndices.RemoveAt( 0 );
+				}
+				else
+				{
+					NewInd = InstancedShadowComponent->AddInstanceWorldSpace( FTransform(HexVectorToPoint( Tile )));			
+				}
+				check( NewInd != -1 );
+				ShadowIndices.Add( Tile, NewInd );
+			}
+		}
+	}
+}
+
+void AHexMap::UpdateAllMeshShadows()
+{
+	UpdateMeshShadows( GetAllTilesOnMap() );
 }

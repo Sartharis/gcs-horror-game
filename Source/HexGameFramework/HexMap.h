@@ -112,6 +112,16 @@ protected:
 	UPROPERTY()
 	TSet<FHexVector> LitTiles;
 
+	/** The component managing all of the instanced shadow meshes*/
+	UPROPERTY( Category = Character, VisibleAnywhere, BlueprintReadOnly, meta = ( AllowPrivateAccess = "true" ) )
+	class UInstancedStaticMeshComponent* InstancedShadowComponent;
+
+	UPROPERTY( Transient, BlueprintReadOnly, Category = "Shadows")
+	TMap<FHexVector, int32> ShadowIndices;
+	
+	UPROPERTY( Transient, BlueprintReadOnly, Category = "Shadows" )
+	TArray<int32> UnusedShadowIndices;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
@@ -195,9 +205,9 @@ public:
 
 	void RemoveLightSource( UHexLightComponent* LightSource );
 
-	UFUNCTION( BlueprintImplementableEvent, BlueprintCallable, Category = "Light" )
+	UFUNCTION( BlueprintNativeEvent, Category = "Light" )
 	void UpdateMeshShadows( const TArray<FHexVector>& ChangedTiles );
 
-	UFUNCTION( BlueprintImplementableEvent, BlueprintCallable, Category = "Light" )
+	UFUNCTION( BlueprintCallable, Category = "Light" )
 	void UpdateAllMeshShadows();
 };
